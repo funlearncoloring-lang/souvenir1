@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Tiroir — album privé</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark: #1B1712;
+    --dark-deep: #131110;
+    --dark-deep-rgb: 19,17,16;
+    --card: #26221C;
+    --card-hover: #2E2921;
+    --cream: #EDE6D8;
+    --cream-rgb: 237,230,216;
+    --cream-dim: rgba(var(--cream-rgb),0.55);
+    --gold: #D4A24C;
+    --gold-rgb: 212,162,76;
+    --blue: #5B7C8D;
+    --error: #C1543D;
+    --error-rgb: 193,84,61;
+    --error-text: #E8A896;
+    --ink: #131110;
+    --font-display: 'Newsreader', serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  body.light-mode{
+    --dark: #F3EEE1;
+    --dark-deep: #FFFFFF;
+    --card: #FBF8F0;
+    --card-hover: #F3EEDF;
+    --cream: #241F19;
+    --cream-rgb: 36,31,25;
+    --gold: #A6741F;
+    --gold-rgb: 166,116,31;
+    --blue: #3F6272;
+    --error: #B84631;
+    --error-rgb: 184,70,49;
+    --error-text: #8B2E1D;
+  }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body {
+    background: var(--dark);
+    color: var(--cream);
+    font-family: var(--font-body);
+    min-height: 100vh;
+  }
+  button { font-family: var(--font-body); cursor: pointer; }
+  input { font-family: var(--font-body); }
+
+  /* ---------- AUTH SCREEN ---------- */
+  .auth-screen {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .auth-card {
+    width: 100%; max-width: 380px;
+    background: var(--card);
+    border-radius: 6px;
+    padding: 40px 34px 34px;
+    border: 1px solid rgba(var(--gold-rgb),0.15);
+  }
+  .auth-card .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .auth-card h1 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 30px;
+    margin-bottom: 6px;
+  }
+  .auth-card .sub {
+    font-size: 13px;
+    color: var(--cream-dim);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--cream-dim);
+    margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%;
+    background: var(--dark-deep);
+    border: 1px solid rgba(var(--cream-rgb),0.15);
+    border-radius: 4px;
+    padding: 11px 13px;
+    color: var(--cream);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus { border-color: var(--gold); }
+  .auth-submit {
+    width: 100%;
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 6px;
+    transition: opacity 0.2s;
+  }
+  .auth-submit:hover { opacity: 0.88; }
+  .auth-switch {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--cream-dim);
+    text-align: center;
+  }
+  .auth-switch button {
+    background: none; border: none;
+    color: var(--blue);
+    font-size: 13px;
+    text-decoration: underline;
+    padding: 0;
+  }
+  .auth-error {
+    background: rgba(var(--error-rgb),0.15);
+    border: 1px solid rgba(var(--error-rgb),0.4);
+    color: var(--error-text);
+    font-size: 12.5px;
+    padding: 9px 12px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .auth-error.show { display: block; }
+
+  /* ---------- APP ---------- */
+  .app { display: none; }
+  .app.show { display: block; }
+
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 22px 40px;
+    border-bottom: 1px solid rgba(var(--cream-rgb),0.1);
+    position: sticky; top: 0;
+    background: var(--dark);
+    z-index: 50;
+  }
+  .topbar .brand {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 22px;
+  }
+  .topbar .actions { display: flex; align-items: center; gap: 14px; }
+  .who {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--cream-dim);
+  }
+  .btn {
+    border-radius: 4px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid rgba(var(--cream-rgb),0.2);
+    background: transparent;
+    color: var(--cream);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn:hover { border-color: var(--gold); }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    font-weight: 600;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+
+  .btn-friends { position: relative; }
+  .friend-badge {
+    position: absolute;
+    top: -6px; right: -6px;
+    background: var(--error);
+    color: var(--cream);
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    min-width: 16px; height: 16px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 4px;
+    display: none;
+  }
+  .friend-badge.show { display: flex; }
+
+  .gallery-wrap { padding: 34px 40px 60px; }
+  .gallery-header {
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-bottom: 14px;
+  }
+  .gallery-header h2 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 22px;
+  }
+  .gallery-header .count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--cream-dim);
+  }
+
+  .gallery-tabs {
+    display: flex; gap: 8px;
+    margin-bottom: 24px;
+  }
+  .gallery-tab {
+    background: transparent;
+    border: 1px solid rgba(var(--cream-rgb),0.15);
+    color: var(--cream-dim);
+    border-radius: 20px;
+    padding: 7px 15px;
+    font-size: 12.5px;
+    font-weight: 500;
+  }
+  .gallery-tab.active {
+    background: var(--gold);
+    color: var(--ink);
+    border-color: var(--gold);
+    font-weight: 600;
+  }
+
+  .friend-tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .grid {
+    columns: 4 220px;
+    column-gap: 16px;
+  }
+  .photo-card {
+    break-inside: avoid;
+    background: var(--card);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    border: 1px solid rgba(var(--cream-rgb),0.08);
+    transition: transform 0.2s;
+    position: relative;
+  }
+  .photo-card:hover { transform: translateY(-3px); }
+  .photo-card img { width: 100%; display: block; }
+  .photo-card .cap {
+    padding: 12px 14px 14px;
+  }
+  .photo-card .cap .txt {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 14px;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .photo-card .cap .meta {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--cream-dim);
+    display: flex; justify-content: space-between;
+  }
+  .photo-delete {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(19,17,16,0.55);
+    color: #fff;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s;
+  }
+  .photo-card:hover .photo-delete { opacity: 1; }
+  .photo-delete:hover { background: var(--error); }
+
+  .empty-state {
+    text-align: center;
+    padding: 70px 20px;
+    color: var(--cream-dim);
+  }
+  .empty-state .icon { font-size: 34px; margin-bottom: 14px; }
+  .empty-state h3 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 20px;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+
+  /* ---------- MODAL ---------- */
+  .modal-overlay {
+    position: fixed; inset:0;
+    background: rgba(var(--dark-deep-rgb),0.7);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 200;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--card);
+    border-radius: 6px;
+    width: 100%; max-width: 420px;
+    padding: 30px;
+    border: 1px solid rgba(var(--gold-rgb),0.15);
+  }
+  .modal h3 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  .drop-zone {
+    border: 1.5px dashed rgba(var(--cream-rgb),0.25);
+    border-radius: 6px;
+    padding: 26px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--cream-dim);
+    margin-bottom: 16px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .drop-zone:hover { border-color: var(--gold); }
+  .drop-zone.has-image { padding: 0; overflow: hidden; border-style: solid; }
+  .drop-zone img { width: 100%; max-height: 220px; object-fit: cover; display: block; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .modal-actions .btn { flex: 1; text-align: center; }
+  .modal-status {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--cream-dim);
+    margin-top: 10px;
+    min-height: 16px;
+  }
+
+  /* ---------- FRIENDS MODAL ---------- */
+  .modal-lg { max-width: 460px; }
+  .friend-tabs {
+    display: flex; gap: 6px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid rgba(var(--cream-rgb),0.1);
+  }
+  .friend-tab-btn {
+    background: none; border: none;
+    color: var(--cream-dim);
+    font-size: 13px;
+    padding: 8px 4px 12px;
+    border-bottom: 2px solid transparent;
+    position: relative;
+  }
+  .friend-tab-btn.active { color: var(--cream); border-bottom-color: var(--gold); }
+  .friend-tab-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--error);
+    margin-left: 5px;
+    vertical-align: middle;
+  }
+  .friend-panel { display: none; max-height: 320px; overflow-y: auto; }
+  .friend-panel.active { display: block; }
+  .friend-search {
+    width: 100%;
+    background: var(--dark-deep);
+    border: 1px solid rgba(var(--cream-rgb),0.15);
+    border-radius: 4px;
+    padding: 10px 12px;
+    color: var(--cream);
+    font-size: 13px;
+    margin-bottom: 14px;
+    outline: none;
+  }
+  .friend-search:focus { border-color: var(--gold); }
+  .friend-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(var(--cream-rgb),0.06);
+  }
+  .friend-row:last-child { border-bottom: none; }
+  .friend-row .fname {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 15px;
+  }
+  .friend-row-actions { display: flex; gap: 6px; }
+  .friend-row-actions .btn { padding: 6px 12px; font-size: 12px; }
+  .friend-empty {
+    text-align: center;
+    color: var(--cream-dim);
+    font-size: 13px;
+    padding: 24px 10px;
+  }
+
+  @media (max-width: 640px) {
+    .topbar, .gallery-wrap { padding-left: 20px; padding-right: 20px; }
+    .grid { columns: 2 150px; }
+  }
+
+  /* ---------- THEME TOGGLE ---------- */
+  .theme-toggle {
+    position: fixed;
+    top: 20px; right: 24px;
+    z-index: 1100;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: 1px solid rgba(var(--cream-rgb),0.2);
+    background: var(--card);
+    color: var(--cream);
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s, background 0.3s, color 0.3s;
+  }
+  .theme-toggle:hover { border-color: var(--gold); }
+
+  /* ---------- AVATAR / PROFILE ---------- */
+  .avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--card-hover);
+    border: 1px solid rgba(var(--gold-rgb),0.3);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .avatar-sm { width: 20px; height: 20px; font-size: 9px; }
+  .who-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: none; border: none;
+    color: var(--cream-dim);
+    padding: 4px 6px 4px 4px;
+    border-radius: 20px;
+    transition: background 0.2s;
+  }
+  .who-btn:hover { background: var(--card-hover); }
+  .who-btn .who { font-family: var(--font-mono); font-size: 12px; }
+
+  .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+  .profile-avatar-wrap { position: relative; cursor: pointer; }
+  .profile-avatar-wrap .avatar { width: 64px; height: 64px; font-size: 20px; }
+  .profile-avatar-edit {
+    position: absolute; bottom: -2px; right: -2px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    border: 2px solid var(--card);
+  }
+  textarea.bio-input {
+    width: 100%;
+    background: var(--dark-deep);
+    border: 1px solid rgba(var(--cream-rgb),0.15);
+    border-radius: 4px;
+    padding: 11px 13px;
+    color: var(--cream);
+    font-size: 13.5px;
+    outline: none;
+    resize: vertical;
+    min-height: 70px;
+    font-family: var(--font-body);
+  }
+  textarea.bio-input:focus { border-color: var(--gold); }
+
+  /* ---------- NOTIFICATIONS ---------- */
+  .btn-notif { position: relative; }
+  .notif-panel {
+    position: absolute;
+    top: 60px; right: 40px;
+    width: 320px; max-height: 380px;
+    overflow-y: auto;
+    background: var(--card);
+    border: 1px solid rgba(var(--gold-rgb),0.2);
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+    z-index: 300;
+    display: none;
+  }
+  .notif-panel.show { display: block; }
+  .notif-panel h4 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 15px;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid rgba(var(--cream-rgb),0.08);
+  }
+  .notif-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 11px 16px;
+    border-bottom: 1px solid rgba(var(--cream-rgb),0.06);
+    font-size: 12.5px;
+  }
+  .notif-item.unread { background: rgba(var(--gold-rgb),0.08); }
+  .notif-item .txt { flex: 1; line-height: 1.4; }
+  .notif-item .txt b { color: var(--cream); }
+  .notif-item .when { font-family: var(--font-mono); font-size: 10px; color: var(--cream-dim); display: block; margin-top: 3px; }
+  .notif-icon { font-size: 15px; margin-top: 1px; }
+
+  /* ---------- LIKES / COMMENTS ---------- */
+  .card-actions {
+    display: flex; align-items: center; gap: 14px;
+    padding: 2px 14px 10px;
+  }
+  .like-btn {
+    background: none; border: none;
+    color: var(--cream-dim);
+    font-size: 13px;
+    display: flex; align-items: center; gap: 5px;
+    transition: color 0.15s;
+  }
+  .like-btn.liked { color: var(--error); }
+  .like-btn:hover { color: var(--error); }
+  .comment-toggle {
+    background: none; border: none;
+    color: var(--cream-dim);
+    font-size: 13px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .comment-toggle:hover { color: var(--gold); }
+  .comments-block { display: none; padding: 0 14px 14px; }
+  .comments-block.show { display: block; }
+  .comment-item { font-size: 12px; margin-bottom: 7px; line-height: 1.4; }
+  .comment-item b { color: var(--gold); font-weight: 600; }
+  .comment-form { display: flex; gap: 6px; margin-top: 8px; }
+  .comment-form input {
+    flex: 1;
+    background: var(--dark-deep);
+    border: 1px solid rgba(var(--cream-rgb),0.15);
+    border-radius: 4px;
+    padding: 7px 10px;
+    color: var(--cream);
+    font-size: 12px;
+    outline: none;
+  }
+  .comment-form input:focus { border-color: var(--gold); }
+  .comment-form button {
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    border-radius: 4px;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* ---------- THEME TAG / SELECT ---------- */
+  .theme-select {
+    width: 100%;
+    background: var(--dark-deep);
+    border: 1px solid rgba(var(--cream-rgb),0.15);
+    border-radius: 4px;
+    padding: 11px 13px;
+    color: var(--cream);
+    font-size: 14px;
+    outline: none;
+  }
+  .theme-select:focus { border-color: var(--gold); }
+  .theme-pill {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--blue);
+    background: rgba(91,124,141,0.15);
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+  .album-filter {
+    background: var(--dark-deep);
+    border: 1px solid rgba(var(--cream-rgb),0.15);
+    color: var(--cream);
+    border-radius: 20px;
+    padding: 7px 15px;
+    font-size: 12.5px;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" title="Changer de thème">🌙</button>
+
+<!-- AUTH SCREEN -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-card">
+    <span class="eyebrow" id="authEyebrow">Espace privé</span>
+    <h1 id="authTitle">Se connecter</h1>
+    <p class="sub" id="authSub">Entre ton identifiant et ton mot de passe pour accéder aux photos.</p>
+    <div class="auth-error" id="authError"></div>
+    <div class="field">
+      <label>Nom d'utilisateur</label>
+      <input type="text" id="authUsername" autocomplete="username" placeholder="ex : julie_m">
+    </div>
+    <div class="field">
+      <label>Mot de passe</label>
+      <input type="password" id="authPassword" autocomplete="current-password" placeholder="••••••••">
+    </div>
+    <button class="auth-submit" id="authSubmit">Se connecter</button>
+    <div class="auth-switch">
+      <span id="switchText">Pas encore de compte ?</span>
+      <button id="switchBtn">Créer un compte</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="brand">Le Tiroir</div>
+    <div class="actions">
+      <button class="btn who-btn" id="openProfile">
+        <span class="avatar avatar-sm" id="topbarAvatar">?</span>
+        <span class="who" id="whoLabel">—</span>
+      </button>
+      <button class="btn btn-notif" id="openNotifs">🔔<span class="friend-badge" id="notifBadge">0</span></button>
+      <button class="btn btn-friends" id="openFriends">👥 Amis<span class="friend-badge" id="friendBadge">0</span></button>
+      <button class="btn btn-primary" id="openUpload">+ Ajouter une photo</button>
+      <button class="btn" id="logoutBtn">Déconnexion</button>
+    </div>
+    <div class="notif-panel" id="notifPanel">
+      <h4>Notifications</h4>
+      <div id="notifList"></div>
+    </div>
+  </div>
+
+  <div class="gallery-wrap">
+    <div class="gallery-header">
+      <h2 id="galleryTitle">Toutes les photos</h2>
+      <span class="count" id="photoCount">0 photo</span>
+    </div>
+    <div class="gallery-tabs">
+      <button class="gallery-tab active" id="tabAll">Toutes les photos</button>
+      <button class="gallery-tab" id="tabFriends">Mes amis</button>
+      <select class="album-filter" id="albumFilter">
+        <option value="all">Tous les albums</option>
+        <option value="Sans thème">Sans thème</option>
+        <option value="Voyage">Voyage</option>
+        <option value="Famille">Famille</option>
+        <option value="Amis">Amis</option>
+        <option value="Nature">Nature</option>
+        <option value="Soirée">Soirée</option>
+        <option value="Quotidien">Quotidien</option>
+        <option value="Autre">Autre</option>
+      </select>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <div class="icon">🖼️</div>
+      <h3>Le tiroir est encore vide</h3>
+      <p>Sois le premier à y déposer une photo.</p>
+    </div>
+  </div>
+</div>
+
+<!-- UPLOAD MODAL -->
+<div class="modal-overlay" id="uploadOverlay">
+  <div class="modal">
+    <h3>Ajouter une photo</h3>
+    <div class="drop-zone" id="dropZone">
+      <span id="dropZoneText">Clique pour choisir une photo</span>
+      <img id="dropZonePreview" style="display:none;">
+    </div>
+    <input type="file" id="fileInput" accept="image/*" style="display:none;">
+    <div class="field">
+      <label>Légende (optionnel)</label>
+      <input type="text" id="captionInput" placeholder="Un mot sur cette photo...">
+    </div>
+    <div class="field">
+      <label>Album / thème</label>
+      <select class="theme-select" id="themeSelect">
+        <option value="Sans thème">Sans thème</option>
+        <option value="Voyage">Voyage</option>
+        <option value="Famille">Famille</option>
+        <option value="Amis">Amis</option>
+        <option value="Nature">Nature</option>
+        <option value="Soirée">Soirée</option>
+        <option value="Quotidien">Quotidien</option>
+        <option value="Autre">Autre</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="cancelUpload">Annuler</button>
+      <button class="btn btn-primary" id="confirmUpload">Publier</button>
+    </div>
+    <div class="modal-status" id="modalStatus"></div>
+  </div>
+</div>
+
+<!-- FRIENDS MODAL -->
+<div class="modal-overlay" id="friendsOverlay">
+  <div class="modal modal-lg">
+    <h3>Amis</h3>
+    <div class="friend-tabs">
+      <button class="friend-tab-btn active" id="ftabSearch">Rechercher</button>
+      <button class="friend-tab-btn" id="ftabRequests">Demandes<span class="friend-tab-dot" id="requestsDot" style="display:none;"></span></button>
+      <button class="friend-tab-btn" id="ftabMine">Mes amis</button>
+    </div>
+
+    <div class="friend-panel active" id="panelSearch">
+      <input type="text" class="friend-search" id="friendSearchInput" placeholder="Chercher un utilisateur...">
+      <div id="searchResults"></div>
+    </div>
+
+    <div class="friend-panel" id="panelRequests">
+      <div id="requestsList"></div>
+    </div>
+
+    <div class="friend-panel" id="panelMine">
+      <div id="mineList"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" id="closeFriends" style="flex:1;">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profileOverlay">
+  <div class="modal">
+    <h3>Mon profil</h3>
+    <div class="profile-header">
+      <div class="profile-avatar-wrap" id="profileAvatarWrap">
+        <span class="avatar" id="profileAvatarPreview" style="width:64px;height:64px;font-size:20px;">?</span>
+        <span class="profile-avatar-edit">✎</span>
+      </div>
+      <div>
+        <div style="font-family:var(--font-display);font-style:italic;font-size:17px;" id="profileUsernameLabel">—</div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--cream-dim);">Clique sur l'avatar pour changer la photo</div>
+      </div>
+    </div>
+    <input type="file" id="profileFileInput" accept="image/*" style="display:none;">
+    <div class="field">
+      <label>Bio</label>
+      <textarea class="bio-input" id="bioInput" placeholder="Un mot sur toi..." maxlength="160"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="cancelProfile">Annuler</button>
+      <button class="btn btn-primary" id="saveProfile">Enregistrer</button>
+    </div>
+    <div class="modal-status" id="profileStatus"></div>
+  </div>
+</div>
+
+<script>
+let currentUser = null;
+let isRegisterMode = false;
+let selectedImageData = null;
+
+// --- simple demo hash (NOT secure — for prototype only) ---
+function simpleHash(str){
+  let h = 0;
+  for (let i=0; i<str.length; i++){
+    h = ((h << 5) - h) + str.charCodeAt(i);
+    h |= 0;
+  }
+  return h.toString(36);
+}
+
+async function getUsers(){
+  try {
+    const res = await window.storage.get('users', true);
+    return res ? JSON.parse(res.value) : {};
+  } catch(e){ return {}; }
+}
+async function saveUsers(users){
+  await window.storage.set('users', JSON.stringify(users), true);
+}
+
+// session: personal (not shared) — remembers who's logged in on this device
+async function saveSession(username){
+  try { await window.storage.set('session', username, false); } catch(e){}
+}
+async function clearSession(){
+  try { await window.storage.delete('session', false); } catch(e){}
+}
+async function getSession(){
+  try {
+    const res = await window.storage.get('session', false);
+    return res ? res.value : null;
+  } catch(e){ return null; }
+}
+
+async function getPhotos(){
+  try {
+    const res = await window.storage.get('photos', true);
+    return res ? JSON.parse(res.value) : [];
+  } catch(e){ return []; }
+}
+async function savePhotos(photos){
+  await window.storage.set('photos', JSON.stringify(photos), true);
+}
+
+// requests: { targetUsername: [fromUsername, ...] }
+async function getRequests(){
+  try {
+    const res = await window.storage.get('friendRequests', true);
+    return res ? JSON.parse(res.value) : {};
+  } catch(e){ return {}; }
+}
+async function saveRequests(reqs){
+  await window.storage.set('friendRequests', JSON.stringify(reqs), true);
+}
+// friendships: { username: [friend1, friend2, ...] } kept symmetric
+async function getFriendships(){
+  try {
+    const res = await window.storage.get('friendships', true);
+    return res ? JSON.parse(res.value) : {};
+  } catch(e){ return {}; }
+}
+async function saveFriendships(f){
+  await window.storage.set('friendships', JSON.stringify(f), true);
+}
+
+// profiles: { username: { photo: dataUrl|null, bio: string } }
+async function getProfiles(){
+  try {
+    const res = await window.storage.get('profiles', true);
+    return res ? JSON.parse(res.value) : {};
+  } catch(e){ return {}; }
+}
+async function saveProfiles(p){
+  await window.storage.set('profiles', JSON.stringify(p), true);
+}
+
+// notifications: { username: [ {id, type, from, photoId, timestamp, read} ] }
+async function getNotifications(){
+  try {
+    const res = await window.storage.get('notifications', true);
+    return res ? JSON.parse(res.value) : {};
+  } catch(e){ return {}; }
+}
+async function saveNotifications(n){
+  await window.storage.set('notifications', JSON.stringify(n), true);
+}
+async function pushNotification(toUser, type, fromUser, extra){
+  if (toUser === fromUser) return; // no self-notifications
+  const notifs = await getNotifications();
+  notifs[toUser] = notifs[toUser] || [];
+  notifs[toUser].unshift({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    type, from: fromUser, timestamp: Date.now(), read: false, ...(extra||{})
+  });
+  notifs[toUser] = notifs[toUser].slice(0, 50);
+  await saveNotifications(notifs);
+}
+
+function avatarInitial(username){
+  return (username || '?').charAt(0).toUpperCase();
+}
+function avatarHtml(profile, username, sizeClass){
+  const cls = 'avatar' + (sizeClass ? ' ' + sizeClass : '');
+  if (profile && profile.photo){
+    return `<span class="${cls}"><img src="${profile.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></span>`;
+  }
+  return `<span class="${cls}">${escapeHtml(avatarInitial(username))}</span>`;
+}
+
+function showError(msg){
+  const el = document.getElementById('authError');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function hideError(){
+  document.getElementById('authError').classList.remove('show');
+}
+
+document.getElementById('switchBtn').addEventListener('click', () => {
+  isRegisterMode = !isRegisterMode;
+  hideError();
+  document.getElementById('authTitle').textContent = isRegisterMode ? 'Créer un compte' : 'Se connecter';
+  document.getElementById('authSub').textContent = isRegisterMode
+    ? "Choisis un identifiant et un mot de passe. Tout le monde peut s'inscrire librement."
+    : "Entre ton identifiant et ton mot de passe pour accéder aux photos.";
+  document.getElementById('authSubmit').textContent = isRegisterMode ? 'Créer mon compte' : 'Se connecter';
+  document.getElementById('switchText').textContent = isRegisterMode ? 'Déjà un compte ?' : "Pas encore de compte ?";
+  document.getElementById('switchBtn').textContent = isRegisterMode ? 'Se connecter' : 'Créer un compte';
+});
+
+document.getElementById('authSubmit').addEventListener('click', async () => {
+  hideError();
+  const username = document.getElementById('authUsername').value.trim();
+  const password = document.getElementById('authPassword').value;
+
+  if (!username || !password){
+    showError('Remplis les deux champs.');
+    return;
+  }
+  if (username.length < 3){
+    showError("L'identifiant doit faire au moins 3 caractères.");
+    return;
+  }
+  if (password.length < 4){
+    showError('Le mot de passe doit faire au moins 4 caractères.');
+    return;
+  }
+
+  const btn = document.getElementById('authSubmit');
+  btn.textContent = '...';
+
+  try {
+    const users = await getUsers();
+    if (isRegisterMode){
+      if (users[username]){
+        showError('Ce nom est déjà pris.');
+        btn.textContent = 'Créer mon compte';
+        return;
+      }
+      users[username] = simpleHash(password);
+      await saveUsers(users);
+      currentUser = username;
+      await saveSession(username);
+      enterApp();
+    } else {
+      if (!users[username] || users[username] !== simpleHash(password)){
+        showError('Identifiant ou mot de passe incorrect.');
+        btn.textContent = 'Se connecter';
+        return;
+      }
+      currentUser = username;
+      await saveSession(username);
+      enterApp();
+    }
+  } catch(e){
+    showError("Erreur de connexion au stockage. Réessaie.");
+    btn.textContent = isRegisterMode ? 'Créer mon compte' : 'Se connecter';
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  currentUser = null;
+  await clearSession();
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('authUsername').value = '';
+  document.getElementById('authPassword').value = '';
+});
+
+let galleryFilter = 'all';
+let galleryAlbum = 'all';
+const openCommentIds = new Set();
+
+async function enterApp(){
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('app').classList.add('show');
+  document.getElementById('whoLabel').textContent = 'connecté en tant que ' + currentUser;
+  await renderGallery();
+  await updateFriendBadge();
+  await updateTopbarAvatar();
+  await updateNotifBadge();
+}
+
+async function updateTopbarAvatar(){
+  const profiles = await getProfiles();
+  const mine = profiles[currentUser];
+  const holder = document.getElementById('topbarAvatar');
+  const wrap = document.createElement('span');
+  wrap.innerHTML = avatarHtml(mine, currentUser, 'avatar-sm');
+  const newAvatar = wrap.firstElementChild;
+  newAvatar.id = 'topbarAvatar';
+  holder.replaceWith(newAvatar);
+}
+
+async function renderGallery(){
+  const grid = document.getElementById('grid');
+  const photos = await getPhotos();
+  const friendships = await getFriendships();
+  const profiles = await getProfiles();
+  const myFriends = friendships[currentUser] || [];
+  let list = [...photos];
+
+  if (galleryFilter === 'friends'){
+    list = list.filter(p => myFriends.includes(p.username) || p.username === currentUser);
+  }
+  if (galleryAlbum !== 'all'){
+    list = list.filter(p => (p.theme || 'Sans thème') === galleryAlbum);
+  }
+
+  const sorted = list.sort((a,b) => b.timestamp - a.timestamp);
+  document.getElementById('photoCount').textContent = sorted.length + (sorted.length > 1 ? ' photos' : ' photo');
+  document.getElementById('emptyState').style.display = sorted.length ? 'none' : 'block';
+  document.getElementById('emptyState').querySelector('h3').textContent = galleryFilter === 'friends'
+    ? 'Aucune photo d\u2019ami pour le moment'
+    : 'Le tiroir est encore vide';
+  document.getElementById('emptyState').querySelector('p').textContent = galleryFilter === 'friends'
+    ? 'Ajoute des amis pour voir leurs photos ici.'
+    : 'Sois le premier à y déposer une photo.';
+  grid.innerHTML = '';
+  sorted.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'photo-card';
+    const isFriend = myFriends.includes(p.username);
+    const isMine = p.username === currentUser;
+    const likes = p.likes || [];
+    const comments = p.comments || [];
+    const iLiked = likes.includes(currentUser);
+    const commentsOpen = openCommentIds.has(p.id);
+    const ownerProfile = profiles[p.username];
+    card.innerHTML = `
+      <img src="${p.dataUrl}" alt="${p.caption || 'photo'}">
+      ${isMine ? `<button class="photo-delete" data-id="${p.id}" title="Supprimer cette photo">✕</button>` : ''}
+      <div class="cap">
+        ${p.caption ? `<div class="txt">${escapeHtml(p.caption)}</div>` : ''}
+        <div class="meta">
+          <span style="display:flex;align-items:center;gap:5px;">${avatarHtml(ownerProfile, p.username, 'avatar-sm')}${escapeHtml(p.username)}${isFriend ? ' <span class="friend-tag">· ami</span>' : ''}${p.theme && p.theme !== 'Sans thème' ? ` <span class="theme-pill">${escapeHtml(p.theme)}</span>` : ''}</span>
+          <span>${new Date(p.timestamp).toLocaleDateString('fr-FR')}</span>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="like-btn ${iLiked ? 'liked' : ''}" data-id="${p.id}">${iLiked ? '♥' : '♡'} ${likes.length || ''}</button>
+        <button class="comment-toggle" data-id="${p.id}">💬 ${comments.length || ''}</button>
+      </div>
+      <div class="comments-block ${commentsOpen ? 'show' : ''}" data-id="${p.id}">
+        ${comments.map(c => `<div class="comment-item"><b>${escapeHtml(c.username)}</b> ${escapeHtml(c.text)}</div>`).join('') || '<div style="font-size:12px;color:var(--cream-dim);">Aucun commentaire pour le moment.</div>'}
+        <div class="comment-form">
+          <input type="text" placeholder="Ajouter un commentaire..." data-id="${p.id}" class="comment-input">
+          <button class="comment-send" data-id="${p.id}">Envoyer</button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  grid.querySelectorAll('.photo-delete').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute('data-id');
+      if (!confirm('Supprimer cette photo ? Cette action est définitive.')) return;
+      try {
+        const all = await getPhotos();
+        const remaining = all.filter(p => p.id !== id);
+        await savePhotos(remaining);
+        await renderGallery();
+      } catch(e){
+        alert('Erreur lors de la suppression. Réessaie.');
+      }
+    });
+  });
+
+  grid.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      try {
+        const all = await getPhotos();
+        const photo = all.find(x => x.id === id);
+        if (!photo) return;
+        photo.likes = photo.likes || [];
+        const idx = photo.likes.indexOf(currentUser);
+        if (idx === -1){
+          photo.likes.push(currentUser);
+          await pushNotification(photo.username, 'like', currentUser, { photoId: id });
+        } else {
+          photo.likes.splice(idx, 1);
+        }
+        await savePhotos(all);
+        await renderGallery();
+        await updateNotifBadge();
+      } catch(e){ /* ignore */ }
+    });
+  });
+
+  grid.querySelectorAll('.comment-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      if (openCommentIds.has(id)) openCommentIds.delete(id); else openCommentIds.add(id);
+      renderGallery();
+    });
+  });
+
+  grid.querySelectorAll('.comment-send').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      const input = grid.querySelector(`.comment-input[data-id="${id}"]`);
+      const text = input.value.trim();
+      if (!text) return;
+      try {
+        const all = await getPhotos();
+        const photo = all.find(x => x.id === id);
+        if (!photo) return;
+        photo.comments = photo.comments || [];
+        photo.comments.push({
+          id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+          username: currentUser, text, timestamp: Date.now()
+        });
+        await savePhotos(all);
+        await pushNotification(photo.username, 'comment', currentUser, { photoId: id });
+        openCommentIds.add(id);
+        await renderGallery();
+        await updateNotifBadge();
+      } catch(e){ /* ignore */ }
+    });
+  });
+  grid.querySelectorAll('.comment-input').forEach(inp => {
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') grid.querySelector(`.comment-send[data-id="${inp.getAttribute('data-id')}"]`).click();
+    });
+  });
+}
+
+document.getElementById('tabAll').addEventListener('click', () => {
+  galleryFilter = 'all';
+  document.getElementById('tabAll').classList.add('active');
+  document.getElementById('tabFriends').classList.remove('active');
+  document.getElementById('galleryTitle').textContent = 'Toutes les photos';
+  renderGallery();
+});
+document.getElementById('tabFriends').addEventListener('click', () => {
+  galleryFilter = 'friends';
+  document.getElementById('tabFriends').classList.add('active');
+  document.getElementById('tabAll').classList.remove('active');
+  document.getElementById('galleryTitle').textContent = 'Photos de mes amis';
+  renderGallery();
+});
+
+document.getElementById('albumFilter').addEventListener('change', (e) => {
+  galleryAlbum = e.target.value;
+  renderGallery();
+});
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// --- upload modal ---
+const uploadOverlay = document.getElementById('uploadOverlay');
+document.getElementById('openUpload').addEventListener('click', () => {
+  selectedImageData = null;
+  document.getElementById('captionInput').value = '';
+  document.getElementById('themeSelect').value = 'Sans thème';
+  document.getElementById('dropZoneText').style.display = 'block';
+  document.getElementById('dropZonePreview').style.display = 'none';
+  document.getElementById('dropZone').classList.remove('has-image');
+  document.getElementById('modalStatus').textContent = '';
+  uploadOverlay.classList.add('show');
+});
+document.getElementById('cancelUpload').addEventListener('click', () => uploadOverlay.classList.remove('show'));
+uploadOverlay.addEventListener('click', (e) => { if (e.target === uploadOverlay) uploadOverlay.classList.remove('show'); });
+
+document.getElementById('dropZone').addEventListener('click', () => document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const status = document.getElementById('modalStatus');
+  status.textContent = 'Compression de l\u2019image...';
+
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      const maxW = 900;
+      const scale = Math.min(1, maxW / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      selectedImageData = canvas.toDataURL('image/jpeg', 0.72);
+
+      document.getElementById('dropZoneText').style.display = 'none';
+      document.getElementById('dropZonePreview').style.display = 'block';
+      document.getElementById('dropZonePreview').src = selectedImageData;
+      document.getElementById('dropZone').classList.add('has-image');
+      status.textContent = 'Prêt à publier.';
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('confirmUpload').addEventListener('click', async () => {
+  const status = document.getElementById('modalStatus');
+  if (!selectedImageData){
+    status.textContent = 'Choisis une photo d\u2019abord.';
+    return;
+  }
+  status.textContent = 'Publication...';
+  try {
+    const photos = await getPhotos();
+    photos.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+      username: currentUser,
+      caption: document.getElementById('captionInput').value.trim(),
+      theme: document.getElementById('themeSelect').value,
+      dataUrl: selectedImageData,
+      timestamp: Date.now(),
+      likes: [],
+      comments: []
+    });
+    await savePhotos(photos);
+    uploadOverlay.classList.remove('show');
+    await renderGallery();
+  } catch(e){
+    status.textContent = "Erreur lors de l'enregistrement. Réessaie.";
+  }
+});
+
+document.getElementById('authPassword').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('authSubmit').click();
+});
+
+// ---------------- FRIENDS ----------------
+const friendsOverlay = document.getElementById('friendsOverlay');
+
+document.getElementById('openFriends').addEventListener('click', async () => {
+  friendsOverlay.classList.add('show');
+  document.getElementById('friendSearchInput').value = '';
+  await renderSearchResults('');
+  await renderRequests();
+  await renderMine();
+});
+document.getElementById('closeFriends').addEventListener('click', () => friendsOverlay.classList.remove('show'));
+friendsOverlay.addEventListener('click', (e) => { if (e.target === friendsOverlay) friendsOverlay.classList.remove('show'); });
+
+function switchFriendTab(tab){
+  ['Search','Requests','Mine'].forEach(t => {
+    document.getElementById('ftab'+t).classList.toggle('active', t.toLowerCase() === tab);
+    document.getElementById('panel'+t).classList.toggle('active', t.toLowerCase() === tab);
+  });
+}
+document.getElementById('ftabSearch').addEventListener('click', () => switchFriendTab('search'));
+document.getElementById('ftabRequests').addEventListener('click', () => switchFriendTab('requests'));
+document.getElementById('ftabMine').addEventListener('click', () => switchFriendTab('mine'));
+
+document.getElementById('friendSearchInput').addEventListener('input', (e) => {
+  renderSearchResults(e.target.value.trim().toLowerCase());
+});
+
+async function renderSearchResults(query){
+  const container = document.getElementById('searchResults');
+  const users = await getUsers();
+  const friendships = await getFriendships();
+  const requests = await getRequests();
+  const myFriends = friendships[currentUser] || [];
+  const sentTo = requests; // { target: [from,...] }
+
+  const allNames = Object.keys(users).filter(u => u !== currentUser);
+  const filtered = query ? allNames.filter(u => u.toLowerCase().includes(query)) : allNames;
+
+  if (!filtered.length){
+    container.innerHTML = '<div class="friend-empty">Aucun utilisateur trouvé.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  filtered.forEach(u => {
+    const isFriend = myFriends.includes(u);
+    const requestPending = (sentTo[u] || []).includes(currentUser);
+    const row = document.createElement('div');
+    row.className = 'friend-row';
+    let actionHtml = '';
+    if (isFriend){
+      actionHtml = '<span class="friend-tag">déjà ami</span>';
+    } else if (requestPending){
+      actionHtml = '<span class="friend-tag">demande envoyée</span>';
+    } else {
+      actionHtml = `<button class="btn btn-primary send-req" data-user="${escapeHtml(u)}">Ajouter</button>`;
+    }
+    row.innerHTML = `<span class="fname">${escapeHtml(u)}</span><div class="friend-row-actions">${actionHtml}</div>`;
+    container.appendChild(row);
+  });
+
+  container.querySelectorAll('.send-req').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const target = btn.getAttribute('data-user');
+      const reqs = await getRequests();
+      reqs[target] = reqs[target] || [];
+      if (!reqs[target].includes(currentUser)) reqs[target].push(currentUser);
+      await saveRequests(reqs);
+      await pushNotification(target, 'friend_request', currentUser);
+      await renderSearchResults(document.getElementById('friendSearchInput').value.trim().toLowerCase());
+      await updateNotifBadge();
+    });
+  });
+}
+
+async function renderRequests(){
+  const container = document.getElementById('requestsList');
+  const reqs = await getRequests();
+  const mine = reqs[currentUser] || [];
+
+  if (!mine.length){
+    container.innerHTML = '<div class="friend-empty">Aucune demande en attente.</div>';
+    return;
+  }
+  container.innerHTML = '';
+  mine.forEach(fromUser => {
+    const row = document.createElement('div');
+    row.className = 'friend-row';
+    row.innerHTML = `
+      <span class="fname">${escapeHtml(fromUser)}</span>
+      <div class="friend-row-actions">
+        <button class="btn btn-primary accept-req" data-user="${escapeHtml(fromUser)}">Accepter</button>
+        <button class="btn decline-req" data-user="${escapeHtml(fromUser)}">Refuser</button>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+
+  container.querySelectorAll('.accept-req').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const fromUser = btn.getAttribute('data-user');
+      const reqs = await getRequests();
+      reqs[currentUser] = (reqs[currentUser] || []).filter(u => u !== fromUser);
+      await saveRequests(reqs);
+
+      const friendships = await getFriendships();
+      friendships[currentUser] = friendships[currentUser] || [];
+      friendships[fromUser] = friendships[fromUser] || [];
+      if (!friendships[currentUser].includes(fromUser)) friendships[currentUser].push(fromUser);
+      if (!friendships[fromUser].includes(currentUser)) friendships[fromUser].push(currentUser);
+      await saveFriendships(friendships);
+      await pushNotification(fromUser, 'friend_accept', currentUser);
+
+      await renderRequests();
+      await renderMine();
+      await updateFriendBadge();
+      await updateNotifBadge();
+      await renderGallery();
+    });
+  });
+  container.querySelectorAll('.decline-req').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const fromUser = btn.getAttribute('data-user');
+      const reqs = await getRequests();
+      reqs[currentUser] = (reqs[currentUser] || []).filter(u => u !== fromUser);
+      await saveRequests(reqs);
+      await renderRequests();
+      await updateFriendBadge();
+    });
+  });
+}
+
+async function renderMine(){
+  const container = document.getElementById('mineList');
+  const friendships = await getFriendships();
+  const mine = friendships[currentUser] || [];
+
+  if (!mine.length){
+    container.innerHTML = '<div class="friend-empty">Tu n\u2019as pas encore d\u2019amis. Va dans "Rechercher" pour en ajouter.</div>';
+    return;
+  }
+  container.innerHTML = '';
+  mine.forEach(f => {
+    const row = document.createElement('div');
+    row.className = 'friend-row';
+    row.innerHTML = `
+      <span class="fname">${escapeHtml(f)}</span>
+      <div class="friend-row-actions">
+        <button class="btn remove-friend" data-user="${escapeHtml(f)}">Retirer</button>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+
+  container.querySelectorAll('.remove-friend').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const f = btn.getAttribute('data-user');
+      if (!confirm(`Retirer ${f} de tes amis ?`)) return;
+      const friendships = await getFriendships();
+      friendships[currentUser] = (friendships[currentUser] || []).filter(u => u !== f);
+      friendships[f] = (friendships[f] || []).filter(u => u !== currentUser);
+      await saveFriendships(friendships);
+      await renderMine();
+      await renderGallery();
+    });
+  });
+}
+
+async function updateFriendBadge(){
+  const reqs = await getRequests();
+  const mine = reqs[currentUser] || [];
+  const badge = document.getElementById('friendBadge');
+  const dot = document.getElementById('requestsDot');
+  if (mine.length){
+    badge.textContent = mine.length;
+    badge.classList.add('show');
+    dot.style.display = 'inline-block';
+  } else {
+    badge.classList.remove('show');
+    dot.style.display = 'none';
+  }
+}
+
+// ---------------- NOTIFICATIONS ----------------
+const notifPanel = document.getElementById('notifPanel');
+
+function notifText(n){
+  if (n.type === 'like') return `<b>${escapeHtml(n.from)}</b> a aimé une de tes photos`;
+  if (n.type === 'comment') return `<b>${escapeHtml(n.from)}</b> a commenté une de tes photos`;
+  if (n.type === 'friend_request') return `<b>${escapeHtml(n.from)}</b> t'a envoyé une demande d'ami`;
+  if (n.type === 'friend_accept') return `<b>${escapeHtml(n.from)}</b> a accepté ta demande d'ami`;
+  return `<b>${escapeHtml(n.from)}</b> a interagi avec ton profil`;
+}
+function notifIcon(n){
+  if (n.type === 'like') return '❤️';
+  if (n.type === 'comment') return '💬';
+  if (n.type === 'friend_request' || n.type === 'friend_accept') return '👥';
+  return '🔔';
+}
+function timeAgo(ts){
+  const diff = Math.max(0, Date.now() - ts);
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'à l\u2019instant';
+  if (mins < 60) return mins + ' min';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + ' h';
+  return Math.floor(hrs / 24) + ' j';
+}
+
+async function renderNotifs(){
+  const list = document.getElementById('notifList');
+  const notifs = await getNotifications();
+  const mine = notifs[currentUser] || [];
+  if (!mine.length){
+    list.innerHTML = '<div class="friend-empty">Aucune notification pour le moment.</div>';
+    return;
+  }
+  list.innerHTML = mine.map(n => `
+    <div class="notif-item ${n.read ? '' : 'unread'}">
+      <span class="notif-icon">${notifIcon(n)}</span>
+      <div class="txt">${notifText(n)}<span class="when">${timeAgo(n.timestamp)}</span></div>
+    </div>
+  `).join('');
+}
+
+async function updateNotifBadge(){
+  const notifs = await getNotifications();
+  const mine = notifs[currentUser] || [];
+  const unread = mine.filter(n => !n.read).length;
+  const badge = document.getElementById('notifBadge');
+  if (unread){
+    badge.textContent = unread;
+    badge.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+  }
+}
+
+async function markNotifsRead(){
+  const notifs = await getNotifications();
+  const mine = notifs[currentUser] || [];
+  if (!mine.length) return;
+  let changed = false;
+  mine.forEach(n => { if (!n.read){ n.read = true; changed = true; } });
+  if (changed){
+    notifs[currentUser] = mine;
+    await saveNotifications(notifs);
+    await updateNotifBadge();
+  }
+}
+
+document.getElementById('openNotifs').addEventListener('click', async (e) => {
+  e.stopPropagation();
+  const willShow = !notifPanel.classList.contains('show');
+  notifPanel.classList.toggle('show');
+  if (willShow){
+    await renderNotifs();
+    setTimeout(markNotifsRead, 1200);
+  }
+});
+document.addEventListener('click', (e) => {
+  if (notifPanel.classList.contains('show') && !notifPanel.contains(e.target) && e.target.id !== 'openNotifs'){
+    notifPanel.classList.remove('show');
+  }
+});
+
+// ---------------- PROFILE ----------------
+const profileOverlay = document.getElementById('profileOverlay');
+let selectedAvatarData = undefined; // undefined = unchanged, null = removed, string = new
+
+document.getElementById('openProfile').addEventListener('click', async () => {
+  selectedAvatarData = undefined;
+  const profiles = await getProfiles();
+  const mine = profiles[currentUser] || {};
+  document.getElementById('profileUsernameLabel').textContent = currentUser;
+  document.getElementById('bioInput').value = mine.bio || '';
+  document.getElementById('profileAvatarPreview').innerHTML = mine.photo
+    ? `<img src="${mine.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+    : escapeHtml(avatarInitial(currentUser));
+  document.getElementById('profileStatus').textContent = '';
+  profileOverlay.classList.add('show');
+});
+document.getElementById('cancelProfile').addEventListener('click', () => profileOverlay.classList.remove('show'));
+profileOverlay.addEventListener('click', (e) => { if (e.target === profileOverlay) profileOverlay.classList.remove('show'); });
+
+document.getElementById('profileAvatarWrap').addEventListener('click', () => document.getElementById('profileFileInput').click());
+document.getElementById('profileFileInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      const size = 200;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const scale = Math.max(size / img.width, size / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+      selectedAvatarData = canvas.toDataURL('image/jpeg', 0.8);
+      document.getElementById('profileAvatarPreview').innerHTML = `<img src="${selectedAvatarData}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('saveProfile').addEventListener('click', async () => {
+  const status = document.getElementById('profileStatus');
+  status.textContent = 'Enregistrement...';
+  try {
+    const profiles = await getProfiles();
+    const mine = profiles[currentUser] || {};
+    if (selectedAvatarData !== undefined) mine.photo = selectedAvatarData;
+    mine.bio = document.getElementById('bioInput').value.trim();
+    profiles[currentUser] = mine;
+    await saveProfiles(profiles);
+    profileOverlay.classList.remove('show');
+    await updateTopbarAvatar();
+    await renderGallery();
+  } catch(e){
+    status.textContent = "Erreur lors de l'enregistrement. Réessaie.";
+  }
+});
+
+// ---------------- THEME ----------------
+const themeToggle = document.getElementById('themeToggle');
+
+function applyTheme(isLight){
+  document.body.classList.toggle('light-mode', isLight);
+  themeToggle.textContent = isLight ? '☀️' : '🌙';
+}
+
+async function initTheme(){
+  try {
+    const res = await window.storage.get('theme', false);
+    applyTheme(res && res.value === 'light');
+  } catch(e){
+    applyTheme(false);
+  }
+}
+
+themeToggle.addEventListener('click', async () => {
+  const isLight = !document.body.classList.contains('light-mode');
+  applyTheme(isLight);
+  try {
+    await window.storage.set('theme', isLight ? 'light' : 'dark', false);
+  } catch(e){ /* preference just won't persist across reloads */ }
+});
+
+// ---------------- BOOT: restore session on reload ----------------
+async function boot(){
+  document.getElementById('authScreen').style.display = 'none';
+  await initTheme();
+
+  const savedUser = await getSession();
+  if (savedUser){
+    const users = await getUsers();
+    if (users[savedUser]){
+      currentUser = savedUser;
+      await enterApp();
+      return;
+    }
+    // session pointed to a user that no longer exists — clean it up
+    await clearSession();
+  }
+  document.getElementById('authScreen').style.display = 'flex';
+}
+
+boot();
+</script>
+
+</body>
+</html>
